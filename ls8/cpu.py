@@ -42,4 +42,44 @@ class CPU:
             0b10000100: self.ST,
         }
 
-        
+#### ALU Mappings 
+
+     # map the ALU opcodes to their commands
+    ALU = {  
+        0b10100000: 'ADD',
+        0b10101000: 'AND',
+        0b10100111: 'CMP',
+        0b01100110: 'DEC',
+        0b10100011: 'DIV',
+        0b01100101: 'INC',
+        0b10100100: 'MOD',
+        0b10100010: 'MUL',
+        0b01101001: 'NOT',
+        0b10101010: 'OR',
+        0b10101100: 'SHL',
+        0b10101101: 'SHR',
+        0b10100001: 'SUB',
+        0b10101011: 'XOR',
+    }        
+
+        # map the ALU commands to their operations
+    ALU_OP = {  
+        'ADD': lambda x, y: x + y,
+        'AND': lambda x, y: x & y,
+        'CMP': lambda x, y: 1 if x == y else 2 if x > y else 4,
+        'DEC': lambda x, y: x - 1,
+        'DIV': lambda x, y: x // y,
+        'INC': lambda x, y: x + 1,
+        'MOD': lambda x, y: x % y,
+        'MUL': lambda x, y: x * y,
+        'NOT': lambda x, y: ~x,
+        'OR': lambda x, y: x | y,
+        'SHL': lambda x, y: x << y,
+        'SHR': lambda x, y: x >> y,
+        'SUB': lambda x, y: x - y,
+        'XOR': lambda x, y: x ^ y,
+    }
+
+    ## ^^ Thanks Richany for hinting to look in this direction last friday ^^
+
+    
