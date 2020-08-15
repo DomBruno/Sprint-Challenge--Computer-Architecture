@@ -192,3 +192,31 @@ class CPU:
         print()
 
 ########
+
+def check_inter(self):
+        interrupts = self.reg[self.im] & self.reg[self.isr]
+        for interrupt in range(8):
+            bit = 1 << interrupt
+            #if an interrupt is triggered
+            if interrupts & bit:
+                # save the old interrupt state
+                self.old_im = self.reg[self.im]
+                # disable interrupts
+                self.reg[self.im] = 0
+                # clear the interrupt
+                self.reg[self.isr] &= (255 ^ bit)
+                # decrement the stack pointer
+                self.reg[self.sp] -= 1
+                # push the pc to the stack
+                self.ram_write(self.reg[self.sp], self.pc)
+                #decrement the stack pointer
+                self.reg[self.sp] -= 1
+                # push the flags to the stack
+                self.ram_write(self.reg[self.sp], self.fl)
+                # push the registers to the stack R0-R6
+                for i in range(7):
+                    self.reg[self.sp] -= 1
+                    self.ram_write(self.reg[self.sp], self.reg[i])
+                self.pc = self.ram[0xF8 + interrupt]
+                # break out and stop checking interrupts
+                break 
