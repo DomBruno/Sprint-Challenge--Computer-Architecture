@@ -278,4 +278,41 @@ def check_inter(self):
             self.pc = self.reg[self.operand_a]
         else:
             self.pc += 1
-   
+    def JMP(self): # Opcode: 01010100 'JMP register' Jump to the address in the given register
+        self.pc = self.reg[self.operand_a]
+
+    def JNE(self): # Opcode: 01010110 'JNE register' Jump if the not equal flag is set to false
+        if not self.fl & 0b1:
+            self.pc = self.reg[self.operand_a]
+        else:
+            self.pc += 1
+
+    def LD(self): # Opcode: 10000011 'LD registerA registerB' Load reg a with value stored in reg b mem address
+        self.reg[self.operand_a] = self.ram_read(self.reg[self.operand_b])
+
+    def LDI(self): # Opcode: 10000010 'LDI registerA registerB' Set the value of a register to an integer. 
+        self.reg[self.operand_a] = self.operand_b
+
+    def NOP(self): # Opcode: 00000000 'NOP'  No operation
+        pass
+
+    def POP(self): # Opcode: 01000110 'POP register' Pop the top of the stack (value into register)
+        self.reg[self.operand_a] = self.ram_read(self.reg[self.sp])
+        self.reg[self.sp] += 1
+
+    def PRA(self): # Opcode: 01001000 'PRA register' Print the alpha (character) value stored in the register
+        print(chr(self.reg[self.operand_a]), end='', flush=True)
+
+    def PRN(self): # Opcode: 01000111 'PRN register' Print the number value stored in the register
+        print(self.reg[self.operand_a])
+
+    def PUSH(self): # Opcode: 01000101 'PUSH register' Push the value in the register to the stack
+        self.reg[self.sp] -= 1
+        self.ram_write(self.reg[self.sp], self.reg[self.operand_a])
+
+    def RET(self): # Opcode: 00010001 'RET' Return from a subroutine
+        self.pc = self.ram_read(self.reg[self.sp])
+        self.reg[self.sp] += 1
+
+    def ST(self): # Opcode: 10000100 'ST registerA registerB' Store the value in reg b to the address of reg a
+        self.ram_write(self.reg[self.operand_a], self.reg[self.operand_b])
