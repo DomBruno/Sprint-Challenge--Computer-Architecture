@@ -219,4 +219,63 @@ def check_inter(self):
                     self.ram_write(self.reg[self.sp], self.reg[i])
                 self.pc = self.ram[0xF8 + interrupt]
                 # break out and stop checking interrupts
-                break 
+                break
+            
+##-------------BRANCH TABLE--------------------------------##
+    def CALL(self): #Opcode: 01010000 'CALL register'  calls a subroutine
+        self.reg[self.sp] -= 1
+        self.ram_write(self.reg[self.sp], self.pc + 1)
+        self.pc = self.reg[self.operand_a]
+
+    def HLT(self): #Opcode: 00000001 'HLT' stops the cpu and exits the emulator
+        self.running = False
+        # self.pc += 1
+
+    def INT(self):  # Opcode: 01010010 'INT register'  issues the interrupt # stored in the register
+        self.reg[self.IS] != (1 << self.reg[self.operand_a])
+        self.pc += 1
+
+    def IRET(self): #  Opcode: 00010011 'IRET' the return from an interrupt handler
+        # pop R6-R0
+        for i in range(6, -1, -1):
+            self.reg[i] = self.ram_read(self.reg[self.sp])
+            self.reg[self.sp] += 1
+        # pop the flags
+        self.fl = self.ram_read(self.reg[self.sp]) 
+        self.reg[self.sp] += 1
+        # pop program counter
+        self.pc = self.ram_read(self.reg[self.sp])  
+        self.reg[self.sp] += 1
+        # re enable the interrupts
+        self.reg[self.im] = self.old_im  
+
+    def JEQ(self): # Opcode: 01010101 'JEQ register' Jump if the equal flag is set to true
+        if self.fl & 0b1:
+            self.pc = self.reg[self.operand_a]
+        else:
+            self.pc += 1
+
+    def JGE(self): # Opcode: 01011010 'JGE register' Jump if the greater than or equal flag is set to true
+        if self.fl & 0b11:
+            self.pc = self.reg[self.operand_a]
+        else:
+            self.pc += 1
+
+    def JGT(self): # Opcode: 01010111 'JGT register' Jump if the greater than flag is set to true
+        if self.fl & 0b10:
+            self.pc = self.reg[self.operand_a]
+        else:
+            self.pc += 1
+
+    def JLE(self): # Opcode: 01011001 'JLE register' Jump if the less than or equal flag is set to true
+        if self.fl & 0b101:
+            self.pc = self.reg[self.operand_a]
+        else:
+            self.pc += 1
+
+    def JLT(self): # Opcode: 01011000 'JLT register' Jump if the less than flag is set to true
+        if self.fl & 0b100:
+            self.pc = self.reg[self.operand_a]
+        else:
+            self.pc += 1
+   
