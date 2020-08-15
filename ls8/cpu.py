@@ -193,7 +193,7 @@ class CPU:
 
 ########
 
-def check_inter(self):
+    def check_inter(self):
         interrupts = self.reg[self.im] & self.reg[self.isr]
         for interrupt in range(8):
             bit = 1 << interrupt
@@ -316,3 +316,22 @@ def check_inter(self):
 
     def ST(self): # Opcode: 10000100 'ST registerA registerB' Store the value in reg b to the address of reg a
         self.ram_write(self.reg[self.operand_a], self.reg[self.operand_b])
+
+
+##----------------------End of BRANCH TABLE----------------------------##
+    @property
+    def ir(self):
+        return self.__instruction_register__
+
+    @ir.setter
+    def ir(self, opcode):
+        self.__instruction_register__ = opcode
+        # load potential operands
+        self.operand_a = self.ram_read(self.pc + 1) if opcode >> 6 > 0 else None
+        self.operand_b = self.ram_read(self.pc + 2) if opcode >> 6 > 1 else None
+        # move program counter past any operands
+        self.pc += (opcode >> 6)
+
+    @ir.deleter
+    def ir(self):
+        self.__instruction_register__ = 0
