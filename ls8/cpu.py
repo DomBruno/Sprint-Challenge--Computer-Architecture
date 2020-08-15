@@ -142,5 +142,53 @@ class CPU:
                 self.reg[reg_a] = result
                 self.reg[reg_b] &= 0xFF
         except Exception:
-            raise SystemError("Unsupported ALU operation")     
+            raise SystemError("Unsupported ALU operation")
 
+    def run(self):
+        """Run the CPU."""
+        self.running = True
+        old_time = new_time = time.time()
+
+        while self.running:
+            if self.reg[self.im]:
+                self.check_inter()
+
+            new_time = time.time()
+            if new_time - old_time > 1:
+                self.reg[self.isr] |= 0b00000001
+                old_time = new_time
+
+            # initialize intruction register and operands (if there are any)
+            self.ir = self.ram_read(self.pc)
+            if self.ir & 0b100000 > 0:
+                # ALU operation
+                self.alu(self.ALU[self.ir], self.operand_a, self.operand_b)
+            else:
+                # non-ALU opcode
+                self.branch_table[self.ir]()
+        
+            # if instruction does not modify program counter
+            if self.ir & 0b10000 == 0:
+                # move to next instruction
+                self.pc += 1             
+
+    def trace(self):
+        """
+        Handy function to print out the CPU state. You might want to call this
+        from run() if you need help debugging.
+        """
+
+        print(f"TRACE: %02X | %02X %02X %02X |" % (
+            self.pc,
+            # self.fl,
+            self.ram_read(self.pc),
+            self.ram_read(self.pc + 1),
+            self.ram_read(self.pc + 2)
+        ), end='')
+
+        for i in range(8):
+            print(" %02X" % self.reg[i], end='')
+
+        print()
+
+########
