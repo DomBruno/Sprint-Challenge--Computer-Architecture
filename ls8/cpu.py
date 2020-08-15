@@ -82,4 +82,65 @@ class CPU:
 
     ## ^^ Thanks Richany for hinting to look in this direction last friday ^^
 
-    
+     # add the ability to load a file as a second argument from the command line
+    def load(self, filename):
+        """Load a program into memory."""
+        file_path = sys.argv[1]
+        program = open(f"{file_path}", "r")
+        address = 0
+        for line in program:
+            if line[0] == "0" or line[0] == "1":
+                command = line.split("#", 1)[0]
+                self.ram[address] = int(command, 2)
+                address += 1
+
+    def ram_read(self, mar):
+        """Returns a byte from ram."""
+        self.mar = mar
+        self.mdr = self.ram[self.mar]
+        return self.mdr
+
+    def ram_write(self, mar, mdr):
+        """Writes a byte to ram."""
+        self.mar = mar
+        self.mdr = mdr
+        self.ram[self.mar] = self.mdr
+
+    # add the ability to load a file as a second argument from the command line
+    def load(self, filename):
+        """Load a program into memory."""
+        file_path = sys.argv[1]
+        program = open(f"{file_path}", "r")
+        address = 0
+        for line in program:
+            if line[0] == "0" or line[0] == "1":
+                command = line.split("#", 1)[0]
+                self.ram[address] = int(command, 2)
+                address += 1
+
+    def ram_read(self, mar):
+        """Returns a byte from ram."""
+        self.mar = mar
+        self.mdr = self.ram[self.mar]
+        return self.mdr
+
+    def ram_write(self, mar, mdr):
+        """Writes a byte to ram."""
+        self.mar = mar
+        self.mdr = mdr
+        self.ram[self.mar] = self.mdr
+
+    def alu(self, op, reg_a, reg_b):
+        try:
+            x = self.reg[reg_a]
+            y = self.reg[reg_b] if reg_b is not None else None
+            result = self.ALU_OP[op](x,y)
+                        
+            if op == 'CMP':
+                self.fl = result
+            else:
+                self.reg[reg_a] = result
+                self.reg[reg_b] &= 0xFF
+        except Exception:
+            raise SystemError("Unsupported ALU operation")     
+
